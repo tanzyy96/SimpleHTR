@@ -20,7 +20,8 @@ class FilePaths:
 
 def write_summary(charErrorRates, wordAccuracies):
     with open(FilePaths.fnSummary, 'w') as f:
-        json.dump({'charErrorRates': charErrorRates, 'wordAccuracies': wordAccuracies}, f)
+        json.dump({'charErrorRates': charErrorRates,
+                   'wordAccuracies': wordAccuracies}, f)
 
 
 def train(model, loader):
@@ -42,7 +43,8 @@ def train(model, loader):
             iterInfo = loader.getIteratorInfo()
             batch = loader.getNext()
             loss = model.trainBatch(batch)
-            print(f'Epoch: {epoch} Batch: {iterInfo[0]}/{iterInfo[1]} Loss: {loss}')
+            print(
+                f'Epoch: {epoch} Batch: {iterInfo[0]}/{iterInfo[1]} Loss: {loss}')
 
         # validate
         charErrorRate, wordAccuracy = validate(model, loader)
@@ -59,12 +61,14 @@ def train(model, loader):
             noImprovementSince = 0
             model.save()
         else:
-            print(f'Character error rate not improved, best so far: {charErrorRate * 100.0}%')
+            print(
+                f'Character error rate not improved, best so far: {charErrorRate * 100.0}%')
             noImprovementSince += 1
 
         # stop training if no more improvement in the last x epochs
         if noImprovementSince >= earlyStopping:
-            print(f'No more improvement since {earlyStopping} epochs. Training stopped.')
+            print(
+                f'No more improvement since {earlyStopping} epochs. Training stopped.')
             break
 
 
@@ -95,7 +99,8 @@ def validate(model, loader):
     # print validation result
     charErrorRate = numCharErr / numCharTotal
     wordAccuracy = numWordOK / numWordTotal
-    print(f'Character error rate: {charErrorRate * 100.0}%. Word accuracy: {wordAccuracy * 100.0}%.')
+    print(
+        f'Character error rate: {charErrorRate * 100.0}%. Word accuracy: {wordAccuracy * 100.0}%.')
     return charErrorRate, wordAccuracy
 
 
@@ -107,18 +112,25 @@ def infer(model, fnImg):
     print(f'Recognized: "{recognized[0]}"')
     print(f'Probability: {probability[0]}')
 
+    return recognized[0], probability[0]
+
 
 def main():
     "main function"
     parser = argparse.ArgumentParser()
     parser.add_argument('--train', help='train the NN', action='store_true')
-    parser.add_argument('--validate', help='validate the NN', action='store_true')
+    parser.add_argument(
+        '--validate', help='validate the NN', action='store_true')
     parser.add_argument('--decoder', choices=['bestpath', 'beamsearch', 'wordbeamsearch'], default='bestpath',
                         help='CTC decoder')
-    parser.add_argument('--batch_size', help='batch size', type=int, default=100)
-    parser.add_argument('--data_dir', help='directory containing IAM dataset', type=Path, required=False)
-    parser.add_argument('--fast', help='use lmdb to load images', action='store_true')
-    parser.add_argument('--dump', help='dump output of NN to CSV file(s)', action='store_true')
+    parser.add_argument('--batch_size', help='batch size',
+                        type=int, default=100)
+    parser.add_argument(
+        '--data_dir', help='directory containing IAM dataset', type=Path, required=False)
+    parser.add_argument(
+        '--fast', help='use lmdb to load images', action='store_true')
+    parser.add_argument(
+        '--dump', help='dump output of NN to CSV file(s)', action='store_true')
     args = parser.parse_args()
 
     # set chosen CTC decoder
@@ -132,13 +144,15 @@ def main():
     # train or validate on IAM dataset
     if args.train or args.validate:
         # load training data, create TF model
-        loader = DataLoaderIAM(args.data_dir, args.batch_size, Model.imgSize, Model.maxTextLen, args.fast)
+        loader = DataLoaderIAM(
+            args.data_dir, args.batch_size, Model.imgSize, Model.maxTextLen, args.fast)
 
         # save characters of model for inference mode
         open(FilePaths.fnCharList, 'w').write(str().join(loader.charList))
 
         # save words contained in dataset into file
-        open(FilePaths.fnCorpus, 'w').write(str(' ').join(loader.trainWords + loader.validationWords))
+        open(FilePaths.fnCorpus, 'w').write(str(' ').join(
+            loader.trainWords + loader.validationWords))
 
         # execute training or validation
         if args.train:
@@ -150,8 +164,24 @@ def main():
 
     # infer text on test image
     else:
-        model = Model(open(FilePaths.fnCharList).read(), decoderType, mustRestore=True, dump=args.dump)
-        infer(model, FilePaths.fnInfer)
+        model = Model(open(FilePaths.fnCharList).read(),
+                      decoderType, mustRestore=True, dump=args.dump)
+        text, prob = infer(model, FilePaths.fnInfer)
+
+        return text, prob
+
+# Take filepath parameter, load model and perform inference. Return Word and Probability.
+
+
+def test_model(filepath=None):
+    try:
+        model = Model(open(FilePaths.fnCharList).read(),
+                      DecoderType.BestPath, mustRestore=True, dump=False)
+        fpath = FilePaths.fnInfer if filepath is None else filepath
+        text, prob = infer(model, fpath)
+        return text, prob
+    except Exception as e:
+        print(e)
 
 
 if __name__ == '__main__':
