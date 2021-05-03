@@ -2,7 +2,7 @@
 
 * **Update 2021: more robust model, faster dataloader, word beam search decoder also available for Windows**
 * **Update 2020: code is compatible with TF2**
-
+testing
 
 Handwritten Text Recognition (HTR) system implemented with TensorFlow (TF) and trained on the IAM off-line HTR dataset.
 This Neural Network (NN) model recognizes the text contained in the images of segmented words as shown in the illustration below.
