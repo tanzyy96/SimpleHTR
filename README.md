@@ -1,8 +1,8 @@
 # Handwritten Text Recognition with TensorFlow
 
+* **Update 2021: Flask server implementation
 * **Update 2021: more robust model, faster dataloader, word beam search decoder also available for Windows**
 * **Update 2020: code is compatible with TF2**
-testing
 
 Handwritten Text Recognition (HTR) system implemented with TensorFlow (TF) and trained on the IAM off-line HTR dataset.
 This Neural Network (NN) model recognizes the text contained in the images of segmented words as shown in the illustration below.
@@ -10,11 +10,18 @@ This Neural Network (NN) model recognizes the text contained in the images of se
 
 ![htr](./doc/htr.png)
 
+## Running Flask server
+```
+pip install -r requirements.txt
 
-## Run demo
-[Download the model](https://www.dropbox.com/s/lod3gabgtuj0zzn/model.zip?dl=1) trained on the IAM dataset.
-Put the contents of the downloaded file `model.zip` into the `model` directory of the repository.
-Afterwards, go to the `src` directory and run `python main.py`.
+cd SimpleHTR/src
+export FLASK_APP=server.py
+flask run
+```
+
+
+## Running model
+Go to the `src` directory and run `python main.py`.
 The input image and the expected output is shown below.
 
 ![test](./data/test.png)
