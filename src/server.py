@@ -18,5 +18,7 @@ def ping_ML():
     if image.filename != '':
         image_filename = image.filename
         image.save(image_filename)
+    else:
+        return "Missing an image there mate!"
     text, prob = main.test_model(image_filename)
     return "Text: {}, Probability: {}".format(text, prob)
